@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#001A9C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Môj rozpočet">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Môj rozpočet</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cal+Sans&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#001A9C; --coral:#FF6648; --peri:#E8EEFF; --peach:#FFE1D7;
+  --bg:#F6F8FF; --card:#fff; --ink:#0B1033; --muted:#5B6390; --line:#E1E6F7;
+  --green:#0E8A5F; --red:#D6452A;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;font-size:16px}
+h1,h2,h3,.num{font-family:'Cal Sans','DM Sans',sans-serif;font-weight:600;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding:0 16px calc(96px + env(safe-area-inset-bottom))}
+header{background:var(--blue);color:#fff;margin:0 -16px;padding:calc(18px + env(safe-area-inset-top)) 20px 26px;border-radius:0 0 26px 26px}
+header .brand{font-size:13px;opacity:.75;letter-spacing:.04em;text-transform:uppercase}
+header h1{margin:4px 0 14px;font-size:26px}
+.hero{display:flex;gap:10px}
+.hero div{flex:1;background:rgba(255,255,255,.1);border-radius:14px;padding:10px 12px}
+.hero small{display:block;font-size:12px;opacity:.75}
+.hero b{font-family:'Cal Sans',sans-serif;font-size:19px;font-weight:600}
+.view{display:none;padding-top:18px}.view.on{display:block}
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 1px 0 var(--line),0 6px 20px rgba(0,26,156,.05)}
+.card h2{font-size:18px;margin:0 0 12px}
+.seg{display:flex;background:var(--peri);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;padding:10px 6px;border-radius:10px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button.on{background:#fff;color:var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.seg.type button.on[data-t=out]{color:var(--red)}
+.seg.type button.on[data-t=in]{color:var(--green)}
+label.f{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px;font-weight:500}
+.amount{display:flex;align-items:center;border:2px solid var(--line);border-radius:14px;padding:4px 14px;background:#fff}
+.amount:focus-within{border-color:var(--blue)}
+.amount input{border:0;outline:0;flex:1;font-family:'Cal Sans',sans-serif;font-size:34px;padding:8px 0;min-width:0;background:transparent}
+.amount span{font-size:24px;color:var(--muted)}
+input.t,select.t{width:100%;border:2px solid var(--line);border-radius:12px;padding:12px;background:#fff;outline:0}
+input.t:focus,select.t:focus{border-color:var(--blue)}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cat{border:2px solid var(--line);background:#fff;border-radius:14px;padding:10px 4px;text-align:center;cursor:pointer;font-size:12px;line-height:1.2}
+.cat i{display:block;font-style:normal;font-size:22px;margin-bottom:4px}
+.cat.on{border-color:var(--blue);background:var(--peri);color:var(--blue);font-weight:600}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-weight:700;font-size:17px;cursor:pointer;margin-top:18px;background:var(--coral);color:#fff}
+.btn.sec{background:var(--peri);color:var(--blue);font-size:15px;padding:13px;margin-top:10px}
+.btn.ghost{background:transparent;color:var(--red);border:2px solid var(--peach);font-size:15px;padding:12px}
+.row2{display:flex;gap:10px}.row2>*{flex:1}
+nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav div{display:flex;max-width:520px;width:100%}
+nav button{flex:1;border:0;background:none;padding:10px 0 12px;font-size:11px;color:var(--muted);cursor:pointer;font-weight:500}
+nav button i{display:block;font-style:normal;font-size:21px;margin-bottom:2px;filter:grayscale(1);opacity:.6}
+nav button.on{color:var(--blue);font-weight:700}
+nav button.on i{filter:none;opacity:1}
+.pnav{display:flex;align-items:center;justify-content:space-between;margin:12px 0 4px}
+.pnav button{border:0;background:var(--peri);color:var(--blue);width:40px;height:40px;border-radius:12px;font-size:20px;cursor:pointer}
+.pnav b{font-family:'Cal Sans',sans-serif;font-size:19px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--bg);border-radius:14px;padding:12px}
+.kpi small{color:var(--muted);font-size:12px;display:block}
+.kpi b{font-family:'Cal Sans',sans-serif;font-size:21px;font-weight:600}
+.kpi em{font-style:normal;font-size:12px;display:block;margin-top:2px}
+.pos{color:var(--green)}.neg{color:var(--red)}
+.bar{margin:10px 0}
+.bar .top{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px}
+.bar .top span:last-child{font-weight:600}
+.bar .track{height:10px;background:var(--peri);border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;background:var(--blue);border-radius:6px}
+.bar small{color:var(--muted);font-size:12px}
+.tip{background:var(--peach);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.45}
+.tip b{color:var(--blue)}
+.tx{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.tx:last-child{border-bottom:0}
+.tx .ic{width:40px;height:40px;border-radius:12px;background:var(--peri);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.tx .mid{flex:1;min-width:0}
+.tx .mid b{display:block;font-size:15px;font-weight:600}
+.tx .mid small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.tx .amt{font-weight:700;white-space:nowrap}
+.tx .del{border:0;background:none;color:#B7BCD6;font-size:18px;padding:6px;cursor:pointer}
+.dayh{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 2px;font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:26px 8px;font-size:15px}
+.chart{display:flex;align-items:flex-end;gap:6px;height:120px;margin-top:8px}
+.chart .c{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
+.chart .bars{display:flex;gap:2px;align-items:flex-end;height:100%;width:100%;justify-content:center}
+.chart .bi{width:42%;background:var(--green);border-radius:4px 4px 0 0;min-height:2px}
+.chart .bo{width:42%;background:var(--coral);border-radius:4px 4px 0 0;min-height:2px}
+.chart small{font-size:10px;color:var(--muted)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.legend .li::before{background:var(--green)}.legend .lo::before{background:var(--coral)}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.note{font-size:13px;color:var(--muted);line-height:1.5}
+.foot{text-align:center;font-size:12px;color:var(--muted);margin:22px 0 8px}
+.foot a{color:var(--blue)}
+.limit{font-size:12px;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">Gramotné Slovensko</div>
+    <h1>Môj rozpočet</h1>
+    <div class="hero">
+      <div><small>Príjmy tento mesiac</small><b id="hIn">0 €</b></div>
+      <div><small>Výdavky tento mesiac</small><b id="hOut">0 €</b></div>
+    </div>
+  </header>
+
+  <!-- PRIDAŤ -->
+  <section class="view on" id="v-add">
+    <div class="card">
+      <div class="seg type" id="typeSeg">
+        <button data-t="out" class="on">Výdavok</button>
+        <button data-t="in">Príjem</button>
+      </div>
+      <label class="f">Suma</label>
+      <div class="amount"><input id="amt" inputmode="decimal" placeholder="0,00" autocomplete="off"><span>€</span></div>
+      <label class="f">Kategória</label>
+      <div class="cats" id="cats"></div>
+      <div class="row2">
+        <div><label class="f">Dátum</label><input type="date" class="t" id="date"></div>
+      </div>
+      <label class="f">Poznámka (nepovinné)</label>
+      <input class="t" id="note" placeholder="napr. Lidl, nájom za október…" maxlength="80">
+      <button class="btn" id="save">Uložiť</button>
+    </div>
+    <div class="card"><h2>Posledné záznamy</h2><div id="recent"></div></div>
+  </section>
+
+  <!-- PREHĽAD -->
+  <section class="view" id="v-sum">
+    <div class="seg" id="perSeg">
+      <button data-p="m" class="on">Mesiac</button>
+      <button data-p="q">Kvartál</button>
+      <button data-p="h">Polrok</button>
+      <button data-p="y">Rok</button>
+    </div>
+    <div class="pnav"><button id="prev">‹</button><b id="plabel"></b><button id="next">›</button></div>
+    <div class="card">
+      <div class="kpis">
+        <div class="kpi"><small>Príjmy</small><b class="pos" id="kIn"></b><em id="kInD"></em></div>
+        <div class="kpi"><small>Výdavky</small><b class="neg" id="kOut"></b><em id="kOutD"></em></div>
+        <div class="kpi"><small>Zostalo</small><b id="kBal"></b></div>
+        <div class="kpi"><small>Miera úspor</small><b id="kRate"></b></div>
+      </div>
+    </div>
+    <div class="card" id="trendCard"><h2>Vývoj po mesiacoch</h2><div class="chart" id="chart"></div>
+      <div class="legend"><span class="li">Príjmy</span><span class="lo">Výdavky</span></div></div>
+    <div class="card"><h2>Kam tečú peniaze</h2><div id="catBars"></div></div>
+    <div class="card"><h2>Odkiaľ prichádzajú</h2><div id="inBars"></div></div>
+    <div class="tip" id="tip"></div>
+  </section>
+
+  <!-- HISTÓRIA -->
+  <section class="view" id="v-hist">
+    <div class="card">
+      <h2>Všetky záznamy</h2>
+      <select class="t" id="histMonth"></select>
+      <div id="hist"></div>
+    </div>
+  </section>
+
+  <!-- NASTAVENIA -->
+  <section class="view" id="v-set">
+    <div class="card">
+      <h2>Mesačné limity</h2>
+      <p class="note">Nastavte si strop pre kategórie, ktoré chcete strážiť. V prehľade uvidíte, koľko vám ešte ostáva.</p>
+      <div id="limits"></div>
+    </div>
+    <div class="card">
+      <h2>Záloha dát</h2>
+      <p class="note">Vaše údaje sú uložené <b>iba v tomto telefóne</b> – nikto iný ich nevidí, ani váš poradca. Raz za čas si spravte zálohu, aby ste o ne neprišli pri výmene telefónu alebo vymazaní prehliadača.</p>
+      <button class="btn sec" id="exp">Stiahnuť zálohu</button>
+      <button class="btn sec" id="csv">Exportovať do Excelu (CSV)</button>
+      <button class="btn sec" id="impBtn">Obnoviť zo zálohy</button>
+      <input type="file" id="imp" accept=".json,application/json" hidden>
+    </div>
+    <div class="card">
+      <h2>Ako si appku pridať na plochu</h2>
+      <p class="note"><b>iPhone (Safari):</b> ikona Zdieľať → „Pridať na plochu“.<br><b>Android (Chrome):</b> menu ⋮ → „Pridať na plochu“ / „Inštalovať aplikáciu“.</p>
+    </div>
+    <button class="btn ghost" id="wipe">Vymazať všetky údaje</button>
+    <div class="foot">Pripravila Gramotné Slovensko · <a href="mailto:info@gramotneslovensko.sk">info@gramotneslovensko.sk</a></div>
+  </section>
+</div>
+
+<nav><div>
+  <button data-v="add" class="on"><i>➕</i>Pridať</button>
+  <button data-v="sum"><i>📊</i>Prehľad</button>
+  <button data-v="hist"><i>🧾</i>História</button>
+  <button data-v="set"><i>⚙️</i>Nastavenia</button>
+</div></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS={
+  out:[["byv","🏠","Bývanie"],["ener","💡","Energie"],["jedlo","🛒","Potraviny"],["rest","🍽️","Reštaurácie"],
+       ["auto","🚗","Doprava"],["deti","🧸","Deti"],["zdr","💊","Zdravie"],["obl","👕","Oblečenie"],
+       ["zab","🎉","Zábava"],["pred","📱","Predplatné"],["poist","🛡️","Poistenie"],["uver","🏦","Úvery"],
+       ["sporenie","🐷","Sporenie"],["dar","🎁","Darčeky"],["dovol","✈️","Dovolenka"],["ine","📦","Iné"]],
+  in:[["mzda","💼","Mzda"],["podn","🧾","Podnikanie"],["prid","👶","Prídavky"],["pren","🔑","Prenájom"],
+      ["bonus","⭐","Bonus"],["vrat","↩️","Vratky"],["dar","🎁","Dar"],["ine","📦","Iné"]]
+};
+const KEY="gs_rozpocet_v1";
+let S=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.tx))return {limits:{},...d};}catch(e){}return {tx:[],limits:{}};}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){toast("Nepodarilo sa uložiť – skontrolujte nastavenia prehliadača");}}
+const $=s=>document.querySelector(s);
+const fmt=n=>new Intl.NumberFormat("sk-SK",{style:"currency",currency:"EUR",maximumFractionDigits:n%1?2:0}).format(n);
+const catOf=(t,id)=>(CATS[t].find(c=>c[0]===id)||CATS[t][CATS[t].length-1]);
+const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const MES=["január","február","marec","apríl","máj","jún","júl","august","september","október","november","december"];
+const MS=["jan","feb","mar","apr","máj","jún","júl","aug","sep","okt","nov","dec"];
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("on"),2200);}
+
+/* ---------- PRIDAŤ ---------- */
+let type="out",cat="jedlo";
+function drawCats(){
+  $("#cats").innerHTML=CATS[type].map(c=>`<button class="cat${c[0]===cat?" on":""}" data-c="${c[0]}"><i>${c[1]}</i>${c[2]}</button>`).join("");
+}
+$("#cats").onclick=e=>{const b=e.target.closest(".cat");if(!b)return;cat=b.dataset.c;drawCats();};
+$("#typeSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;type=b.dataset.t;cat=type==="out"?"jedlo":"mzda";
+  [...$("#typeSeg").children].forEach(x=>x.classList.toggle("on",x===b));drawCats();};
+$("#date").value=iso(new Date());
+$("#save").onclick=()=>{
+  const v=parseFloat(($("#amt").value||"").replace(/\s/g,"").replace(",","."));
+  if(!(v>0)){toast("Zadajte sumu");$("#amt").focus();return;}
+  S.tx.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:type,c:cat,a:Math.round(v*100)/100,d:$("#date").value||iso(new Date()),n:$("#note").value.trim()});
+  persist();$("#amt").value="";$("#note").value="";toast(type==="out"?"Výdavok uložený":"Príjem uložený");render();
+};
+$("#amt").addEventListener("keydown",e=>{if(e.key==="Enter")$("#save").click();});
+
+function txRow(x){const c=catOf(x.t,x.c);const [y,m,d]=x.d.split("-");
+  return `<div class="tx"><div class="ic">${c[1]}</div><div class="mid"><b>${c[2]}</b><small>${+d}. ${MS[+m-1]}${x.n?" · "+esc(x.n):""}</small></div>
+  <div class="amt ${x.t==="in"?"pos":"neg"}">${x.t==="in"?"+":"−"}${fmt(x.a)}</div><button class="del" data-id="${x.id}" aria-label="Zmazať">✕</button></div>`;}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+document.addEventListener("click",e=>{const b=e.target.closest(".del");if(!b)return;
+  if(!confirm("Zmazať tento záznam?"))return;S.tx=S.tx.filter(x=>x.id!==b.dataset.id);persist();render();});
+const sorted=()=>[...S.tx].sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id));
+
+/* ---------- OBDOBIA ---------- */
+let per="m",off=0;
+function range(p,o){const now=new Date();let y=now.getFullYear(),m=now.getMonth();
+  const len={m:1,q:3,h:6,y:12}[p];let start=Math.floor(m/len)*len;let idx=y*12+start+o*len;
+  const sy=Math.floor(idx/12),sm=idx%12;const ey=Math.floor((idx+len-1)/12),em=(idx+len-1)%12;
+  const from=`${sy}-${String(sm+1).padStart(2,"0")}-01`,to=`${ey}-${String(em+1).padStart(2,"0")}-31`;
+  let label=p==="m"?`${MES[sm][0].toUpperCase()+MES[sm].slice(1)} ${sy}`:p==="q"?`${sm/3+1}. kvartál ${sy}`:p==="h"?`${sm<6?"1.":"2."} polrok ${sy}`:`Rok ${sy}`;
+  return {from,to,label,len,sy,sm};}
+const inR=(r,x)=>x.d>=r.from&&x.d<=r.to;
+function totals(r){let i=0,o=0;S.tx.forEach(x=>{if(inR(r,x)){x.t==="in"?i+=x.a:o+=x.a;}});return {i,o};}
+$("#perSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;per=b.dataset.p;off=0;
+  [...$("#perSeg").children].forEach(x=>x.classList.toggle("on",x===b));drawSum();};
+$("#prev").onclick=()=>{off--;drawSum();};$("#next").onclick=()=>{if(off<0){off++;drawSum();}};
+function delta(cur,prev,goodUp){if(!prev)return "";const d=(cur-prev)/prev*100;if(Math.abs(d)<.5)return `<span style="color:var(--muted)">rovnako ako predtým</span>`;
+  const good=goodUp?d>0:d<0;return `<span class="${good?"pos":"neg"}">${d>0?"▲":"▼"} ${Math.abs(d).toFixed(0)} % oproti predch.</span>`;}
+function bars(el,t,r,useLimits){
+  const m={};S.tx.forEach(x=>{if(x.t===t&&inR(r,x))m[x.c]=(m[x.c]||0)+x.a;});
+  const arr=Object.entries(m).sort((a,b)=>b[1]-a[1]);const tot=arr.reduce((s,a)=>s+a[1],0);
+  if(!arr.length){el.innerHTML=`<div class="empty">Za toto obdobie zatiaľ nič.</div>`;return arr;}
+  el.innerHTML=arr.map(([k,v])=>{const c=catOf(t,k);let lim="";
+    if(useLimits&&S.limits[k]>0){const L=S.limits[k]*r.len;const left=L-v;
+      lim=`<div class="limit ${left<0?"neg":"pos"}">${left<0?"Prekročený limit o "+fmt(-left):"Z limitu ostáva "+fmt(left)}</div>`;}
+    return `<div class="bar"><div class="top"><span>${c[1]} ${c[2]}</span><span>${fmt(v)}</span></div>
+    <div class="track"><div class="fill" style="width:${v/arr[0][1]*100}%;${t==="in"?"background:var(--green)":""}"></div></div>
+    <small>${(v/tot*100).toFixed(0)} % z celku · ${fmt(v/r.len)} mesačne v priemere</small>${lim}</div>`;}).join("");
+  return arr;}
+function drawSum(){
+  const r=range(per,off),p=range(per,off-1);$("#plabel").textContent=r.label;$("#next").style.opacity=off<0?1:.3;
+  const t=totals(r),pt=totals(p),bal=t.i-t.o;
+  $("#kIn").textContent=fmt(t.i);$("#kOut").textContent=fmt(t.o);
+  $("#kInD").innerHTML=delta(t.i,pt.i,true);$("#kOutD").innerHTML=delta(t.o,pt.o,false);
+  $("#kBal").textContent=fmt(bal);$("#kBal").className=bal<0?"neg":"pos";
+  $("#kRate").textContent=t.i?Math.round(bal/t.i*100)+" %":"–";
+  // trend
+  if(per==="m"){$("#trendCard").style.display="none";}else{$("#trendCard").style.display="";
+    const cols=[];for(let k=0;k<r.len;k++){const idx=r.sy*12+r.sm+k,y=Math.floor(idx/12),m=idx%12;
+      const rr={from:`${y}-${String(m+1).padStart(2,"0")}-01`,to:`${y}-${String(m+1).padStart(2,"0")}-31`};cols.push({l:MS[m],...totals(rr)});}
+    const mx=Math.max(1,...cols.map(c=>Math.max(c.i,c.o)));
+    $("#chart").innerHTML=cols.map(c=>`<div class="c"><div class="bars"><div class="bi" style="height:${c.i/mx*100}%" title="${fmt(c.i)}"></div><div class="bo" style="height:${c.o/mx*100}%" title="${fmt(c.o)}"></div></div><small>${c.l}</small></div>`).join("");}
+  const outs=bars($("#catBars"),"out",r,true);bars($("#inBars"),"in",r,false);
+  // tip
+  let tip="";
+  if(!t.i&&!t.o)tip="Začnite zapisovať aj drobné výdavky – práve tie sa na konci mesiaca najviac sčítajú.";
+  else if(bal<0)tip=`<b>Pozor:</b> výdavky boli o ${fmt(-bal)} vyššie ako príjmy. Pozrite sa na najväčšiu kategóriu – tam je zvyčajne najväčší priestor.`;
+  else{const rate=t.i?bal/t.i:0;
+    tip=rate>=.2?`<b>Výborne!</b> Odkladáte ${Math.round(rate*100)} % príjmu. Overte si so svojím poradcom, či tieto peniaze pre vás aj pracujú.`
+      :`Zostalo vám ${fmt(bal)}. Dobrým cieľom je odkladať aspoň 10–20 % príjmu – ideálne hneď na začiatku mesiaca.`;}
+  if(outs.length&&t.o){const [k,v]=outs[0];if(v/t.o>.35&&k!=="byv")tip+=` Najviac idú peniaze na <b>${catOf("out",k)[2].toLowerCase()}</b> (${Math.round(v/t.o*100)} %).`;}
+  $("#tip").innerHTML=tip;
+}
+
+/* ---------- HISTÓRIA ---------- */
+function drawHist(){
+  const months=[...new Set(S.tx.map(x=>x.d.slice(0,7)))].sort().reverse();
+  const cur=$("#histMonth").value;
+  $("#histMonth").innerHTML=`<option value="">Všetky mesiace</option>`+months.map(m=>`<option value="${m}">${MES[+m.slice(5)-1]} ${m.slice(0,4)}</option>`).join("");
+  if(months.includes(cur))$("#histMonth").value=cur;
+  const f=$("#histMonth").value;const list=sorted().filter(x=>!f||x.d.startsWith(f));
+  if(!list.length){$("#hist").innerHTML=`<div class="empty">Zatiaľ žiadne záznamy.</div>`;return;}
+  let h="",last="";list.forEach(x=>{const ml=x.d.slice(0,7);if(!f&&ml!==last){last=ml;h+=`<div class="dayh">${MES[+ml.slice(5)-1]} ${ml.slice(0,4)}</div>`;}h+=txRow(x);});
+  $("#hist").innerHTML=h;}
+$("#histMonth").onchange=drawHist;
+
+/* ---------- NASTAVENIA ---------- */
+function drawLimits(){
+  $("#limits").innerHTML=CATS.out.filter(c=>!["sporenie","ine"].includes(c[0])).map(c=>`<div class="tx"><div class="ic">${c[1]}</div><div class="mid"><b>${c[2]}</b></div>
+  <input class="t" style="width:110px;text-align:right" inputmode="decimal" placeholder="bez limitu" data-l="${c[0]}" value="${S.limits[c[0]]||""}"></div>`).join("");}
+$("#limits").addEventListener("change",e=>{const i=e.target.closest("[data-l]");if(!i)return;
+  const v=parseFloat(i.value.replace(",","."));if(v>0)S.limits[i.dataset.l]=v;else{delete S.limits[i.dataset.l];i.value="";}persist();toast("Limit uložený");});
+function dl(name,data,mime){const b=new Blob([data],{type:mime});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+$("#exp").onclick=()=>dl(`rozpocet-zaloha-${iso(new Date())}.json`,JSON.stringify(S),"application/json");
+$("#csv").onclick=()=>{const rows=[["Dátum","Typ","Kategória","Suma","Poznámka"]].concat(sorted().map(x=>[x.d,x.t==="in"?"Príjem":"Výdavok",catOf(x.t,x.c)[2],String(x.a).replace(".",","),x.n]));
+  dl(`rozpocet-${iso(new Date())}.csv`,"﻿"+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(";")).join("\n"),"text/csv");};
+$("#impBtn").onclick=()=>$("#imp").click();
+$("#imp").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);
+  if(!Array.isArray(d.tx))throw 0;if(!confirm(`Obnoviť ${d.tx.length} záznamov? Súčasné údaje sa nahradia.`))return;
+  S={limits:{},...d};persist();render();toast("Záloha obnovená");}catch(err){toast("Tento súbor nie je platná záloha");}};rd.readAsText(f);e.target.value="";};
+$("#wipe").onclick=()=>{if(confirm("Naozaj vymazať všetky údaje? Toto sa nedá vrátiť.")&&confirm("Máte zálohu? Pokračovať s vymazaním?")){S={tx:[],limits:{}};persist();render();toast("Údaje vymazané");}};
+
+/* ---------- NAV ---------- */
+document.querySelector("nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+b.dataset.v));window.scrollTo(0,0);render();};
+
+function render(){
+  const r=range("m",0),t=totals(r);$("#hIn").textContent=fmt(t.i);$("#hOut").textContent=fmt(t.o);
+  const rec=sorted().slice(0,5);$("#recent").innerHTML=rec.length?rec.map(txRow).join(""):`<div class="empty">Sem sa zapíšu vaše posledné príjmy a výdavky.</div>`;
+  drawSum();drawHist();drawLimits();}
+drawCats();render();
+if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
